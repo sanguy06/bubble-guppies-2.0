@@ -1,12 +1,23 @@
 {
-    "name": "Eco Buddy",
-    "version": "1.0",
-    "description": "some description for Eco Buddy",
-    "permissions": ["activeTab,", "storage"],
-    "host_permissions": ["https://www.amazon.com/*"],
-    "content_scripts": {
-        "matches": ["https://www.amazon.com/*"],
-        "js": ["content.js"]
-    },
-    "manifest_version": 3
+  "manifest_version": 3,
+  "name": "EcoBuddy",
+  "version": "1.0.0",
+  "description": "Make sustainable shopping choices on Amazon with sustainability ratings, eco-feedback, and community stats.",
+  "permissions": ["activeTab", "storage", "tabs"],
+  "optional_permissions": ["geolocation"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.amazon.com/*", "*://*.amazon.co.uk/*", "*://*.amazon.de/*", "*://*.amazon.ca/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["*://*.amazon.com/*"]
 }
