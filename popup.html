@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <Title>EcoBuddy</Title>
+    <div class="header">
+        <div class="header_title">
+            <span class="header_logo">🍃</span> 
+            EcoBuddy
+        </div>
+        <div class="toggle-wrap">
+            <span id="toggle-label">On</span>
+            <label class="toggle">
+                <input type="checkbox" id="toggle" checked>
+                <span class="toggle__slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-label">Buddies:</span>
+            <span class="stat-value" id="buddies">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Green Streak:</span>
+            <span class="stat-value" id="green-streak">0</span>
+        </div>
+    </div>
+
+    <div class="slider-container">
+        <div class="slider-label">Sustainability Score Filter</div>
+        <p>Adjust the slider to filter products based on their min sustainability score.</p>
+        <label for="eco-slider">Sustainability Score:</label>
+        <input type="range" id="eco-slider" min="0" max="5" value="3" step="1">
+        <span id="slider-value">3</span>
+    </div>
+
+    <script src="./popup.js" type="module"></script>
+  </body>
+</html>
