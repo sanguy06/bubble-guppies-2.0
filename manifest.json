@@ -1,0 +1,12 @@
+{
+    "name": "Eco Buddy",
+    "version": "1.0",
+    "description": "some description for Eco Buddy",
+    "permissions": ["activeTab,", "storage"],
+    "host_permissions": ["https://www.amazon.com/*"],
+    "content_scripts": {
+        "matches": ["https://www.amazon.com/*"],
+        "js": ["content.js"]
+    },
+    "manifest_version": 3
+}
