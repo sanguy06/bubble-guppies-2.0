@@ -1,4 +1,3 @@
-
 #greenradar-widget {
   position: fixed;
   bottom: 24px;
@@ -173,4 +172,164 @@
 .greenradar-check {
   font-size: 16px;
   margin-right: 4px;
+}
+.ecobuddy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  line-height: 1;
+  border: 1px solid #d4edda;
+  background: #f0f9f2;
+  color: #2d6a4f;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.ecobuddy-badge:hover {
+  background: #e2f3e7;
+  box-shadow: 0 1px 4px rgba(45, 106, 79, 0.15);
+}
+
+.ecobuddy-badge--low {
+  border-color: #f5c6cb;
+  background: #fdf0f0;
+  color: #a94442;
+}
+
+.ecobuddy-badge--low:hover {
+  background: #fbe3e3;
+}
+
+.ecobuddy-badge--medium {
+  border-color: #ffeeba;
+  background: #fff9e6;
+  color: #856404;
+}
+
+.ecobuddy-badge--medium:hover {
+  background: #fff3cd;
+}
+
+.ecobuddy-badge__icon_positive {
+  font-size: 13px;
+  line-height: 1;
+  background-color: #CBFFA3;
+  border-radius: 10px;
+  border-color: #6DA63A;
+  padding: 3px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.ecobuddy-badge__icon_negative {
+  font-size: 13px;
+  line-height: 1;
+  background-color: #FF9F82;
+  border-radius: 10px;
+  border-color: #C9502E;
+  padding: 3px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.ecobuddy-badge__score {
+  font-weight: 600;
+}
+
+.ecobuddy-indicator {
+  background: none;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  display: block;
+  text-align: center;
+  font-size: 2rem;
+  margin-top: 6px;
+  border: none;
+}
+
+.ecobuddy-indicator:hover {
+  transform: scale(1.1);
+  transition: transform 0.15s;
+}
+
+#ecobuddy-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ecobuddy-popup-inner {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 380px;
+  width: 90%;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+#ecobuddy-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #666;
+}
+
+#ecobuddy-score-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ecobuddy-score-popup #ecobuddy-popup-inner {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+#ecobuddy-score-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.ecobuddy-badge__icon_positive:hover {
+  transform: scale(1.1);
+  transition: transform 0.15s;
+}
+
+.ecobuddy-badge__icon_negative:hover {
+  transform: scale(1.1);
+  transition: transform 0.15s;
 }
