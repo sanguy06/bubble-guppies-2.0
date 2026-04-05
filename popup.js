@@ -43,15 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const buddies = document.getElementById('buddies');
 
   // Load stats
-  chrome.runtime.sendMessage({ type: 'GET_STATS' }, (data) => {
-    if (!data) return;
-
-    toggle.checked = data.enabled !== false;
-    toggleLabel.textContent = toggle.checked ? 'On' : 'Off';
-
-    buddies.textContent = data.buddies || 0;
-    streakEl.textContent = data.streak || 0;
-  });
+  chrome.storage.local.get(['streak', 'buddies'], ({ streak, buddies }) => {
+    document.getElementById('green-streak').textContent = streak || 0;
+    document.getElementById('buddies').textContent = buddies || 0;
+});
 
   // Toggle handler
   toggle.addEventListener('change', () => {
