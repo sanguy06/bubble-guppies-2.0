@@ -25,10 +25,10 @@ slider.addEventListener("input", (e) => {
 
 function updateDisplay(val) {
   sliderVal.textContent = val;
-  scoreDisplay.textContent = `${val} / 100`;
+  scoreDisplay.textContent = `${val} / 5`;
 
   // Change color dynamically based on value
-  const color = val >= 70 ? "#2e7d32" : val >= 40 ? "#f9a825" : "#c62828";
+  const color = val >= 4 ? "#2e7d32" : val >= 2 ? "#f9a825" : "#c62828";
   scoreDisplay.style.color = color;
 }
 
