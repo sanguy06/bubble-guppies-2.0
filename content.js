@@ -1,12 +1,3 @@
-// products = each product basically
-
-const products = document.querySelectorAll('[data-asin]');
-
-function getScore(item) {
-    
-    let score = 0;
-    const title = item.textContent.toLowerCase();
-
     const strongKeywords = [
     // certifications
     'certified organic',
@@ -57,6 +48,131 @@ function getScore(item) {
     'earth friendly',
     'environmentally friendly'
 ];
+
+// Weighted scoring categories
+const CATEGORIES = [
+    { name: 'Carbon & Emissions', weight: 0.25 },
+    { name: 'Water Use', weight: 0.15 },
+    { name: 'Materials & Waste', weight: 0.25 },
+    { name: 'Labor & Supply Chain', weight: 0.20 },
+    { name: 'Product Longevity', weight: 0.15 }
+];
+
+
+function detectPage() {
+    const url = window.location.href;
+
+
+    // if it's a product page
+    // all product pages include '/dp'
+    if(url.includes('/dp')){
+        injectProductPage();
+    }
+}
+
+
+// Product Page Injection
+function injectProductPage() {
+
+    console.log("inject product")
+    const score = getProductScore()
+    const title = document.getElementById('productTitle');
+    // Inject Indicators near buy box
+    const buy_box = document.getElementById('buy-now-button')
+   
+    if (buy_box) {
+        const parent = buy_box.closest('div');
+        if (parent){
+            //const msg = "This product is sustainable"
+            const msg = ""
+            if (score >=3) {
+                msg = "🌿"
+            } else {
+                msg = "😟"
+            }
+            const badge = createBadge(msg)
+            parent.insertBefore(badge, parent.firstChild);
+        }
+    }
+       
+    // Inject Score
+    if (title) {
+        console.log("TITLE")
+        const scoreBadge = createScoreBadge(score)
+        title.appendChild(scoreBadge)                   // goes into the title div
+    }
+   
+}
+
+// Create Badge Elements
+function createBadge(msg) {
+    const badge = document.createElement("span")
+    badge.className = 'ecocart-indicator--positive'
+    badge.textContent = msg;
+
+    badge.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    return badge
+}
+
+// Create Badge for Scores
+function createScoreBadge(score) {
+    const scoreBadge = document.createElement("span")
+    scoreBadge.className = 'ecocart-badge__icon'
+    scoreBadge.textContent = `🌿 ${score}/5`;
+    scoreBadge.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showScorePopup();
+    });
+    return scoreBadge
+
+}
+
+function showScorePopup() {
+
+}
+
+// products = each product basically
+const products = document.querySelectorAll('[data-asin]');
+
+
+function getProductScore() {
+    console.log("Product Score")
+    const pageText = document.body.innerText;
+    let score = 0
+    strongKeywords.forEach(keyword => {
+        if (pageText.includes(keyword)) {
+            console.log("Strong: ", keyword)
+            score += 3;
+        }
+        })
+
+     mediumKeywords.forEach(keyword => {
+        if (pageText.includes(keyword)) {
+            console.log("Medium: ", keyword)
+            score += 2;
+        }
+    })
+
+     weakKeywords.forEach(keyword => {
+        if (pageText.includes(keyword)) {
+            console.log("Weak: ", keyword)
+            score += 1;
+        }
+    })
+    console.log("Score: ", score)
+    return score
+}
+
+function getScore(item) {
+    
+    let score = 0;
+    const title = item.textContent.toLowerCase();
+
     
 // check for each respective keyword : 
 
@@ -113,8 +229,9 @@ function filter() {
     })
 }
 
+
 filter();
-// window.addEventListener('load', ()=> {
-//     filter();
-// })
+
+    // safe to query static DOM elements now
+detectPage();
 
