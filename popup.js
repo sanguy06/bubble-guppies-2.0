@@ -48,6 +48,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('buddies').textContent = buddies || 0;
 });
 
+chrome.storage.local.get('streak', ({ streak }) => {
+    if ((streak || 0) >= 5) {
+        const streak_count = document.getElementById('green-streak');
+        const existing = streak_count.querySelector('.streak-fire');
+        const size = 12 + Math.min(streak * 0.5, 20); // grows with streak but caps at 32px
+
+        if (existing) {
+            existing.style.fontSize = `${size}px`;
+        } else {
+            const streak_emoji = document.createElement('span');
+            streak_emoji.className = 'streak-fire';
+            streak_emoji.innerText = '🔥';
+            streak_emoji.style.fontSize = `${size}px`;
+            streak_count.appendChild(streak_emoji);
+        }
+    }
+});
+
   // Toggle handler
   toggle.addEventListener('change', () => {
     const enabled = toggle.checked;
@@ -55,3 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.runtime.sendMessage({ type: 'TOGGLE_ENABLED', enabled });
   });
 });
+

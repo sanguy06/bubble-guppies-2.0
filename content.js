@@ -361,17 +361,77 @@ chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
 });
 detectPage();
 
-// STREAK 
+// STREAK
 
-document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').forEach(product => {
-    product.addEventListener('click', () => {
-        const score = getScore(product);
-        if (score >= 3) {
+
+
+function attachStreakListeners() {
+    // 1) Handle Product Result Clicks (Existing logic)
+    document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').forEach(product => {
+        if (product.dataset.streakListener) return;
+        product.dataset.streakListener = true;
+        
+        product.addEventListener('click', () => {
+            const score = getScore(product);
             chrome.storage.local.get('streak', ({ streak }) => {
-                chrome.storage.local.set({ streak: (streak || 0) + 1 });
+                const currentStreak = streak || 0;
+                chrome.storage.local.set({ streak: score >= 3 ? currentStreak + 1 : 0 });
             });
-        } else {
-            chrome.storage.local.set({ streak: 0 }); 
-        }
+        });
     });
+}
+
+// 2) Handle ALL "Add to Cart" clicks using Global Delegation
+document.addEventListener('click', (e) => {
+    // Check if the clicked element (or its parent) is an Add to Cart button
+    const addToCartBtn = e.target.closest('#add-to-cart-button, [name="submit.add-to-cart"], .a-button-stack input[type="submit"]');
+    
+    if (addToCartBtn) {
+        console.log("Streak updated to:", currentStreak + 2);
+        console.log("Add to cart detected - incrementing streak +2");
+        chrome.storage.local.get('streak', ({ streak }) => {
+            const currentStreak = streak || 0;
+            chrome.storage.local.set({ streak: currentStreak + 2 });
+        });
+    }
+}, true); // Use capture phase to ensure we catch it before Amazon handles navigation
+
+const streakObserver = new MutationObserver(() => {
+    attachStreakListeners();
 });
+
+streakObserver.observe(document.body, { childList: true, subtree: true });
+
+attachStreakListeners(); // run once on initial load
+
+// --- CORE LOGIC HANDLER ---
+
+function updatePageSustainabilty() {
+    chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
+        const threshold = minEcoScore ?? 2; // Default to 2 if not set
+        
+        // 1. Run the Filter
+        filter(threshold, 0.1);
+        
+        // 2. Attach Streak Listeners to any new items
+        attachStreakListeners();
+    });
+}
+
+// Change your globalObserver setup to this:
+const globalObserver = new MutationObserver((mutations) => {
+    // Check if the mutation was actually a product list addition, 
+    // not just our own badges being added.
+    const addedNodes = mutations.some(m => Array.from(m.addedNodes).some(node => 
+        node.nodeType === 1 && (node.querySelector('[data-asin]') || node.hasAttribute('data-asin'))
+    ));
+
+    if (addedNodes) {
+        clearTimeout(window.ecoTimeout);
+        window.ecoTimeout = setTimeout(updatePageSustainabilty, 500); 
+    }
+});
+
+// --- INITIAL LOAD ---
+// Run immediately when the script first injects
+updatePageSustainabilty();
