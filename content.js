@@ -78,27 +78,19 @@ function injectProductPage() {
     const score = getProductScore()
     const title = document.getElementById('productTitle');
     // Inject Indicators near buy box
-    const buy_box = document.getElementById('buy-now-button')
-   
+    const buy_box = document.getElementById('buyNow')
+    let msg = ""
     if (buy_box) {
-        const parent = buy_box.closest('div');
-        if (parent){
-            //const msg = "This product is sustainable"
-            const msg = ""
-            if (score >=3) {
-                msg = "🌿"
-            } else {
-                msg = "😟"
-            }
-            const badge = createBadge(msg)
-            parent.insertBefore(badge, parent.firstChild);
-        }
+        msg = score >= 3 ? "🌿" : "😟";
+        const badge = createBadge(msg)
+        buy_box.parentNode.insertBefore(badge, buy_box.nextSibling);
+        
     }
        
     // Inject Score
     if (title) {
         console.log("TITLE")
-        const scoreBadge = createScoreBadge(score)
+        const scoreBadge = createScoreBadge(score, msg)
         title.appendChild(scoreBadge)                   // goes into the title div
     }
    
@@ -107,8 +99,16 @@ function injectProductPage() {
 // Create Badge Elements
 function createBadge(msg) {
     const badge = document.createElement("span")
-    badge.className = 'ecocart-indicator--positive'
+    badge.className = 'ecocart-indicator'
+
+    // Style it
+    badge.style.display = "block";
+    badge.style.textAlign = "center";
+    badge.style.fontSize = "2rem";
+    badge.style.marginTop = "6px";
+
     badge.textContent = msg;
+    console.log(msg)
 
     badge.addEventListener('click', (e) => {
         e.preventDefault();
@@ -119,10 +119,10 @@ function createBadge(msg) {
 }
 
 // Create Badge for Scores
-function createScoreBadge(score) {
+function createScoreBadge(score, msg) {
     const scoreBadge = document.createElement("span")
     scoreBadge.className = 'ecocart-badge__icon'
-    scoreBadge.textContent = `🌿 ${score}/5`;
+    scoreBadge.textContent = `${msg} ${score}/5`;
     scoreBadge.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -233,8 +233,5 @@ function filter(threshold, opacity) {
     })
 }
 
-
 filter(2, 0.1);
 detectPage();
-
-
