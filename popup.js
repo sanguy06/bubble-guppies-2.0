@@ -1,35 +1,39 @@
 const slider = document.getElementById("eco-slider");
 const sliderVal = document.getElementById("slider-value");
-const scoreDisplay = document.getElementById("score-display");
 
 // Restore saved value from previous session
 chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
   if (minEcoScore !== undefined) {
     slider.value = minEcoScore;
     updateDisplay(minEcoScore);
+    applyFilter(minEcoScore);
   }
 });
 
 slider.addEventListener("input", (e) => {
-  const val = parseInt(e.target.value);
+  const val = parseInt(e.target.value, 10);
   updateDisplay(val);
 
   // Save to storage so it persists when popup closes
   chrome.storage.local.set({ minEcoScore: val });
 
-  // Tell content.js to re-filter the page
-  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    chrome.tabs.sendMessage(tab.id, { type: "FILTER_UPDATE", minScore: val });
-  });
+  applyFilter(val);
 });
 
 function updateDisplay(val) {
   sliderVal.textContent = val;
-  scoreDisplay.textContent = `${val} / 5`;
 
   // Change color dynamically based on value
   const color = val >= 4 ? "#2e7d32" : val >= 2 ? "#f9a825" : "#c62828";
-  scoreDisplay.style.color = color;
+  sliderVal.style.color = color;
+}
+
+function applyFilter(val) {
+  // Tell content.js to re-filter the page
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab?.id) return;
+    chrome.tabs.sendMessage(tab.id, { type: "FILTER_UPDATE", minScore: val });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
