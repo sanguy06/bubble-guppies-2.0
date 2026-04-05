@@ -75,7 +75,7 @@ function detectPage() {
 
     // if it's a product page
     // all product pages include '/dp'
-    if(url.includes('/dp')){
+    if(url.includes('/dp') || url.includes('/gp/product/')){
         injectProductPage();
     }
 }
@@ -92,9 +92,8 @@ function injectProductPage() {
     let msg = ""
     if (buy_box) {
         msg = score >= 3 ? "🌿" : "😟";
-        const badge = createBadge(msg)
+        const badge = createBadge(score, msg)
         buy_box.parentNode.insertBefore(badge, buy_box.nextSibling);
-        
     }
        
     // Inject Score
@@ -107,7 +106,7 @@ function injectProductPage() {
 }
 
 // Create Badge Elements
-function createBadge(msg) {
+function createBadge(score, msg) {
     const badge = document.createElement("span")
     badge.className = 'ecocart-indicator'
 
@@ -121,8 +120,10 @@ function createBadge(msg) {
     console.log(msg)
 
     badge.addEventListener('click', (e) => {
+        console.log("clicked badge")
         e.preventDefault();
         e.stopPropagation();
+        showPopup(score);
     });
 
     return badge
@@ -165,6 +166,10 @@ function getProductScore() {
             score += 1;
         }
     })
+     // cap score at 5
+    if (score > 5) {
+        score = 5;
+    }
     console.log("Score: ", score)
     return score
 }
@@ -173,10 +178,8 @@ function getScore(item) {
     
     let score = 0;
     const title = item.textContent.toLowerCase();
-
     
-// check for each respective keyword : 
-
+    // check for each respective keyword : 
     strongKeywords.forEach(keyword => {
         if (title.includes(keyword)) {
             score += 3;
@@ -220,6 +223,34 @@ function dispScore(product, score) {
     badge.innerHTML = `<strong>Score: ${score} / 5</strong>`;
 }
 
+function showPopup(score) {
+    // Avoid duplicates
+    const existing = document.getElementById('ecocart-popup');
+    if (existing) existing.remove();
+    const desc = score >= 3 ? "🌿 High": "😟 Low" 
+    const popup = document.createElement('div');
+    popup.id = 'ecocart-popup';
+    popup.innerHTML = `
+        <div id="ecocart-popup-inner">
+            <button id="ecocart-close">✕</button>
+            <h2>${desc} EcoBuddy Score</h2>
+            <p>This product scores <strong>${score}/5 on sustainability. </strong></p>
+            <p>${score >= 3 ? "Great choice for the planet!" : "Consider looking for alternatives with better environmental practices."}</p>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    document.getElementById('ecocart-close').addEventListener('click', () => {
+        popup.remove();
+    });
+
+    // Click outside to close
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) popup.remove();
+    });
+}
+
 function filter(threshold = 2, opacity = 0.1) {
     const minScore = Number.isFinite(Number(threshold)) ? Number(threshold) : 2;
     products.forEach(product => {
@@ -245,4 +276,3 @@ chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
     filter(minEcoScore ?? 2, 0.1);
 });
 detectPage();
-
