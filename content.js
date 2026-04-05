@@ -3,10 +3,10 @@
     if(document.getElementById("Eco-rdr")) return;
 
     //the data and diagram itself
-    const FIREBASE = "https://amaradar-default-rtdb.firebaseio.com/";
-    const CLUSTER_RAD = 2;
+    const FIREBASE = "https://amaradar-default-rtdb.firebaseio.com";
+    const CLUSTER_RAD = 2; //in miles
     const ORDER_TIMELIVE = 24 * 60 * 60 * 1000; //time is in milliseconds
-    const POLL_INTERVAL = 30000;
+    const POLL_INTERVAL = 30000;  //will refresh every 30 seconds
 
     let orders = [];
     let joined = false;
@@ -23,7 +23,9 @@
         const dLat = (b.lat - a.lat) * Math.PI / 180; //latitude
         const dLon = (b.lon - a.lon) * Math.PI /180; //longitude
         const h = Math.sin(dLat / 2)**2 +
-            Math.cos(a.lat * Math.PI/180) * Math.cos(b.lat * Math.PI/180) * Math.sin(dLon/2)**2;
+            Math.cos(a.lat * Math.PI / 180) * 
+            Math.cos(b.lat * Math.PI / 180) * 
+            Math.sin(dLon / 2)**2;
             return R * 2 * Math.asin(Math.sqrt(h));
 
     }
@@ -32,7 +34,7 @@
     function polar(userLo, orderLo) {
         const dist = haversine(userLo, orderLo);
         const dLat = orderLo.lat - userLo.lat;
-        const dLon = orderLo.lon - userLoc.lon;
+        const dLon = orderLo.lon - userLo.lon;
         const angle = Math.atan2(dLon, dLat) * (180 / Math.PI);
         return {
             distance: dist,
@@ -50,7 +52,7 @@
         };
     }
 
-    function clusterOrders(list) {
+    function clusterOrder(list) {
         return list.filter(o => o.distance < 1.5);
     }
 
@@ -93,7 +95,7 @@
     async function writeFirebase() {
         if (!userLoc) return;
         try {
-            const res = await fetch('${FIREBASE}/orders.json', {
+            const res = await fetch(`${FIREBASE}/orders.json`, {
                 method: "POST",
                 body: JSON.stringify({
                     lat: Math.round(userLoc.lat * 100) / 100,
@@ -104,6 +106,15 @@
             });
             const data = await res.json();
             userOrder = data.name;
+
+            //Increments the global total user count
+            const countRes = await fetch(`${FIREBASE}/stats/totalUsers.json`);
+            const current  = await countRes.json();
+            await fetch(`${FIREBASE}/stats/totalUsers.json`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body:JSON.stringify((current || 0) + 1)
+            });
         } 
         catch (e) {
             console.warn("Firebasse fail", e);
@@ -113,7 +124,7 @@
     //Users order is deleted when they leave site
     window.addEventListener("beforeunload", () => {
         if (userOrder) {
-            navigator.sendBeacon('${FIREBASE}/orders/${userOrder}.json', JSON.stringify(null));
+            navigator.sendBeacon(`${FIREBASE}/orders/${userOrder}.json`, JSON.stringify(null));
         }
     });
 
@@ -149,37 +160,36 @@
     const widget = document.createElement("div");
     widget.id = "greenradar-widget";
     widget.innerHTML = `
-    <div id= "greenradar-header">
-        <span class="greenradar-dot-live"></span>
-        <span>Eco Radar</span>
-        <button id="greenradar-toggle" title="Minimize>-</button>
-    </div>
-
-    <div id="greenradar-body">
-        <div id="greenradar-wrap">
-            <canvas id = "greenradar-canvas" width = "300" height="200"></canvas>
-            <div id="greenradar-you">you</div> /*the blue dot will be ourselves*/
+        <div id="greenradar-header">
+            <span class="greenradar-dot-live"></span>
+            <span>Eco Radar</span>
+            <button id="greenradar-toggle" title="Minimize">−</button>
         </div>
 
-        <div id="greenradar-stats">
-            <p class="greenradar-stat"><span id="greenradar-count>5</span> nearby buddies going green</p>
-            <p class="greenradar-stat" id="greenradar-trend">+2 in last 5 minutes</p>
-        </div>
+        <div id="greenradar-body">
+            <div id="greenradar-wrap">
+                <canvas id="greenradar-canvas" width="200" height="200"></canvas>
+                <div id="greenradar-you">you</div>
+            </div>
 
-        <div id="greenradar-waitout">
-            <div id="greenradar-waitoutT"> Wait <span id="greenradar-wait">6</span> hours → join batch</div>
-            <div id="greenradar-waitoutS"> Save <span id="greenradar-savings">38</span>% carbon delivery emissions</div>
-        </div>
+            <div id="greenradar-stats">
+                <p class="greenradar-stat"><span id="greenradar-count">5</span> nearby buddies going green</p>
+                <p class="greenradar-stat" id="greenradar-trend">+2 in last 5 minutes</p>
+            </div>
 
-        <button id="greenradar-button">Join Sustainable Delivery</button>
+            <div id="greenradar-waitout">
+                <div id="greenradar-waitoutT">‼️ Wait <span id="greenradar-wait">6</span> hrs → join batch</div>
+                <div id="greenradar-waitoutS">Save ~<span id="greenradar-savings">38</span>% carbon delivery emissions</div>
+            </div>
 
-        <div id="greenradar-joined" style="display:none">
-            <span class="greenradar-check">🎉</span> YAY, You joined a sustainable batch!<br>
-            <small id="greenradar-impact"></small>
+            <button id="greenradar-button">Join Sustainable Delivery</button>
+
+            <div id="greenradar-joined" style="display:none">
+                <span class="greenradar-check">🎉</span> You joined a sustainable batch!<br>
+                <small id="greenradar-impact"></small>
+            </div>
         </div>
-    </div>        
     `;
-
     document.body.appendChild(widget);
 
     //the Radar picture
@@ -197,7 +207,7 @@
     }
 
     function imgRadar() {
-        ctx.clearRect(0, 0, 200, 300);
+        ctx.clearRect(0, 0, 200, 200);
 
         //outer circle border
         ctx.beginPath();
@@ -209,7 +219,7 @@
         //cluster light up
         const clustered = clusterOrders(orders);
         if (clustered.length >= 4) {
-            const avgA = clustered.reduce((s, o) => s + o.anlge, 0) / clustered.length;
+            const avgA = clustered.reduce((s, o) => s + o.angle, 0) / clustered.length;
             const avgD = clustered.reduce((s, o) => s + o.distance, 0) /clustered.length;
             const cp = polarXY(avgD, avgA);
             const pulse = 0.6 + 0.4 * Math.sin(tick * 0.08);
@@ -233,9 +243,9 @@
         });
 
         //the dot that represents us
-        ctx.beginPath(0);
+        ctx.beginPath();
         ctx.arc(CX, CY, 5 , 0, Math.PI * 2);
-        ctx.filleStyle = "#0fff";
+        ctx.fillStyle = "#0fff";
         ctx.fill();
         ctx.beginPath();
         ctx.arc(CX, CY, 8, 0, Math.PI * 2);
@@ -304,15 +314,3 @@
     };
 
 })();
-
-
-
-
-//creating a container
-/*const container = document.createElement("div");
-container.id = "name" //put a name
-
-container.innerHTML = 
-    <div class= ""> //put a name </div>
-    <div class= "//need to put a the info"></div>
-    <div class= "radar-info"></div> */
