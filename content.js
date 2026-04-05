@@ -1,6 +1,6 @@
 
 (function () {
-    if(document.getElementById("Eco-rdr")) return;
+    if(document.getElementById("greenradar-widget")) return;
 
     //the data and diagram itself
     const FIREBASE = "https://amaradar-default-rtdb.firebaseio.com";
@@ -52,7 +52,7 @@
         };
     }
 
-    function clusterOrder(list) {
+    function clusterOrders(list) {
         return list.filter(o => o.distance < 1.5);
     }
 
@@ -67,29 +67,25 @@
 
     //Firebase will get the orders that are nearby
     async function fetchOrders() {
-        if (!userLoc) return;
-        try {
-            const res = await fetch (`${FIREBASE}/orders.json`);
-            const data = await res.json();
-            if (!data) {
-                orders = [];
-                updateStats();
-                return;
-            }
+    if (!userLoc) return;
+    try {
+        const res  = await fetch(`${FIREBASE}/orders.json`);
+        const data = await res.json();
+        if (!data) return; // keep simulated dots
 
-            const now = Date.now();
-            orders = Object.entries(data)
-                .map(([key, o]) => ({ key, ...o}))
-                .filter(o=> o.expiresAt > now && o.key !== userOrder)
-                .filter(o => haversine(userLoc, o) <= CLUSTER_RAD)
-                .map(o => polar(userLoc,o));
+        const now = Date.now();
+        const realOrders = Object.entries(data)
+            .map(([key, o]) => ({ key, ...o }))
+            .filter(o => o.expiresAt > now && o.key !== userOrder)
+            .filter(o => haversine(userLoc, o) <= CLUSTER_RAD)
+            .map(o => polar(userLoc, o));
 
-            updateStats();
-        } 
-        catch (e) {
-            console.warn("Firebase fail", e);
-        }
+        if (realOrders.length > 0) orders = realOrders; // only swap if real data exists
+        updateStats();
+    } catch (e) {
+        console.warn("Firebase fail", e);
     }
+}
 
     //If user opt-in to green then Firebase updates
     async function writeFirebase() {
@@ -97,6 +93,7 @@
         try {
             const res = await fetch(`${FIREBASE}/orders.json`, {
                 method: "POST",
+                headers: {"Content-Type" : "application/json"},
                 body: JSON.stringify({
                     lat: Math.round(userLoc.lat * 100) / 100,
                     lon: Math.round(userLoc.lon * 100) / 100,
@@ -128,33 +125,31 @@
         }
     });
 
-    //Geolocation
+
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                userLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            userLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            // Replace simulated dots with real Firebase data
+            //orders = [];
+            setTimeout(() => {
                 fetchOrders();
-                setInterval(fetchOrders, POLL_INTERVAL);
-            },
-            () => {
-                //if the geolocation is denied by user then it will go to simulated data
-                for (let i = 0; i < 5; ++i) 
+                setInterval(fetchOrders, POLL_INTERVAL);    
+            }, 30000);
+        },
+        () => {
+            // Geo denied — keep simulation running and growing
+            setInterval(() => {
+                if (orders.length < 18) {
                     orders.push(genOrder());
-                setInterval(() => {
-                    if (orders.length < 18) {
-                        orders.push(genOrder());
-                        updateStats();
-                    }
-                }, 8000);
-            },
-            {timeout: 8000}
-        );
-    }
-    else {
-        //for when no geolaction is identified the simulation is seeded
-        for(let i = 0; i < 5; ++i)
-            orders.push(generateOrder());
-    }
+                    orders.push(genOrder());
+                }
+                updateStats();
+            }, 8000);
+        },
+        { timeout: 8000 }
+    );
+}
 
     //the structure of the actual picture
     const widget = document.createElement("div");
@@ -218,7 +213,7 @@
 
         //cluster light up
         const clustered = clusterOrders(orders);
-        if (clustered.length >= 4) {
+        if (clustered.length >= 3) {
             const avgA = clustered.reduce((s, o) => s + o.angle, 0) / clustered.length;
             const avgD = clustered.reduce((s, o) => s + o.distance, 0) /clustered.length;
             const cp = polarXY(avgD, avgA);
@@ -245,7 +240,7 @@
         //the dot that represents us
         ctx.beginPath();
         ctx.arc(CX, CY, 5 , 0, Math.PI * 2);
-        ctx.fillStyle = "#0fff";
+        ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.beginPath();
         ctx.arc(CX, CY, 8, 0, Math.PI * 2);
@@ -268,15 +263,18 @@
         document.getElementById("greenradar-count").textContent = orders.length;
         document.getElementById("greenradar-savings").textContent = savings;
         document.getElementById("greenradar-wait").textContent = wait;
-        document.getElementById("greenrdar-trend").textContent = trendMsgs[Math.floor(Math.random() * trendMsgs.length)];
+        document.getElementById("greenradar-trend").textContent = trendMsgs[Math.floor(Math.random() * trendMsgs.length)];
     }
 
+    //the animated part
     function loop() {
         ++tick;
-
         imgRadar();
         requestAnimationFrame(loop);
     }
+    //seed simulation
+    for (let i = 0; i < 5; i++) orders.push(genOrder());
+    updateStats();
 
     loop();
     updateStats();
@@ -298,9 +296,9 @@
 
         this.style.display = "none";
 
-        document.getElementById("greenradar-callout").style.display = "none";
+        document.getElementById("greenradar-waitout").style.display = "none";
         document.getElementById("greenradar-joined").style.display = "block";
-        document.getElementById("greenradar-impact").textContent = 'Cluster of ${orders.length} → ~${savings}% fewer emissions';
+        document.getElementById("greenradar-impact").textContent = `Cluster of ${orders.length} → ~${savings}% fewer emissions`;
 
         orders.push({ distance: 0, angle: 0, age: 0, isUser: true });
     };
@@ -309,7 +307,7 @@
     let collapsed = false;
     document.getElementById("greenradar-toggle").onclick = function () {
         collapsed = !collapsed;
-        document.getElementById("greenradar-body").style.display = collaped ? "none" : "block";
+        document.getElementById("greenradar-body").style.display = collapsed ? "none" : "block";
         this.textContent = collapsed ? "+" : "-";
     };
 
