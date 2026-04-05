@@ -254,6 +254,7 @@ document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').
             chrome.storage.local.get('streak', ({ streak }) => {
                 chrome.storage.local.set({ streak: (streak || 0) + 1 });
             });
+        // reset the streak to 0 if user clicks sustain rating < 3
         } else {
             chrome.storage.local.set({ streak: 0 }); 
         }
