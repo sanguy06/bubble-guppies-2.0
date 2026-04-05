@@ -556,14 +556,37 @@ function getScore(item) {
 
 }
 
+// fixed positioning with score element injections
 function dispScore(product, score) {
     let badge = product.querySelector('.eco-score-badge');
     if (!badge) {
         badge = document.createElement('div');
         badge.className = 'eco-score-badge';
-        product.appendChild(badge);
+        badge.style.cssText = `
+            font-size: 12px;
+            color: ${score >= 3 ? '#2e7d32' : '#a94442'};
+            background: ${score >= 3 ? '#f0f9f2' : '#fdf0f0'};
+            border: 1px solid ${score >= 3 ? '#c8e6c9' : '#f5c6cb'};
+            border-radius: 6px;
+            padding: 2px 8px;
+            margin: 4px 0;
+            display: inline-block;
+        `;
+
+        badge.innerHTML = `<strong>Score: ${score} / 5</strong>`;
+        
+        const titleElement = product.querySelector('[data-cy="title-recipe"]');
+        if (titleElement) {
+            titleElement.parentNode.insertBefore(badge, titleElement.nextSibling);
+        }
+        else {
+            const cardInner = product.querySelector('.s-card-container') || 
+                          product.querySelector('.sg-col-inner') ||
+                          product;
+        cardInner.prepend(badge);
+
+        }
     }
-    badge.innerHTML = `<strong>Score: ${score} / 5</strong>`;
 }
 
 function showPopup(score) {
