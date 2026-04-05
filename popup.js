@@ -58,12 +58,12 @@ chrome.storage.local.get('streak', ({ streak }) => {
             const existing = streak_count.querySelector('.streak-fire');
 
             if (existing) {
-                existing.style.fontSize = `${10 + newSize}px`;
+                existing.style.fontSize = `${1 + newSize}px`;
             } else {
                 const streak_emoji = document.createElement('span');
                 streak_emoji.className = 'streak-fire';
                 streak_emoji.innerText = '🔥';
-                streak_emoji.style.fontSize = `${10 + newSize}px`;
+                streak_emoji.style.fontSize = `${5 + newSize}px`;
                 streak_count.appendChild(streak_emoji);
             }
         });

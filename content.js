@@ -277,18 +277,75 @@ chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
 });
 detectPage();
 
-// STREAK 
+// STREAK
 
-document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').forEach(product => {
-    product.addEventListener('click', () => {
-        const score = getScore(product);
-        if (score >= 3) {
-            chrome.storage.local.get('streak', ({ streak }) => {
-                chrome.storage.local.set({ streak: (streak || 0) + 1 });
-            });
-        // reset the streak to 0 if user clicks sustain rating < 3
-        } else {
-            chrome.storage.local.set({ streak: 0 }); 
-        }
+
+
+function attachStreakListeners() {
+    // 1) increment streak by 1 if you click on a sustain rating of 3 or higher
+    document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').forEach(product => {
+        if (product.dataset.streakListener) return; // prevent duplicates
+        product.dataset.streakListener = true;
+        
+        product.addEventListener('click', () => {
+            const score = getScore(product);
+            if (score >= 3) {
+                chrome.storage.local.get('streak', ({ streak }) => {
+                    chrome.storage.local.set({ streak: (streak || 0) + 1 });
+                });
+            } else {
+                chrome.storage.local.set({ streak: 0 });
+            }
+        });
     });
+
+    document.querySelectorAll('button[aria-label="Add to cart"]').forEach(btn => {
+        if (btn.dataset.streakListener) return;
+        btn.dataset.streakListener = true;
+
+        btn.addEventListener('click', () => {
+            chrome.storage.local.get('streak', ({ streak }) => {
+                chrome.storage.local.set({ streak: (streak || 0) + 2 });
+            });
+        });
+    });
+}
+
+const streakObserver = new MutationObserver(() => {
+    attachStreakListeners();
 });
+
+streakObserver.observe(document.body, { childList: true, subtree: true });
+
+attachStreakListeners(); // run once on initial load
+
+// --- CORE LOGIC HANDLER ---
+
+function updatePageSustainabilty() {
+    chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
+        const threshold = minEcoScore ?? 2; // Default to 2 if not set
+        
+        // 1. Run the Filter
+        filter(threshold, 0.1);
+        
+        // 2. Attach Streak Listeners to any new items
+        attachStreakListeners();
+    });
+}
+
+// --- MUTATION OBSERVER ---
+// This watches for when Amazon loads new products (scrolling or next page)
+const globalObserver = new MutationObserver((mutations) => {
+    // We use a small timeout to let Amazon finish 'painting' the new HTML
+    clearTimeout(window.ecoTimeout);
+    window.ecoTimeout = setTimeout(updatePageSustainabilty, 300);
+});
+
+globalObserver.observe(document.body, { 
+    childList: true, 
+    subtree: true 
+});
+
+// --- INITIAL LOAD ---
+// Run immediately when the script first injects
+updatePageSustainabilty();
