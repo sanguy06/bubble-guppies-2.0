@@ -1,0 +1,29 @@
+{
+  "name": "bubble-guppies-2.0",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --watch"
+  },
+  "description": "",
+  "main": "background.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanguy06/bubble-guppies-2.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sanguy06/bubble-guppies-2.0/issues"
+  },
+  "homepage": "https://github.com/sanguy06/bubble-guppies-2.0#readme",
+  "dependencies": {
+    "firebase": "^12.11.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.105.4",
+    "webpack-cli": "^7.0.2"
+  }
+}
