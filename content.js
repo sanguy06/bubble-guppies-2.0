@@ -4,10 +4,6 @@ chrome.runtime.onMessage.addListener((msg) => {
     }
 });
 
-// products = each product basically
-
-const products = document.querySelectorAll('[data-asin][data-component-type="s-search-result"]');
-
     const strongKeywords = [
     // certifications
     'certified organic',
@@ -220,7 +216,10 @@ function dispScore(product, score) {
     badge.innerHTML = `<strong>Score: ${score} / 5</strong>`;
 }
 
-function filter(threshold = 2, opacity = 0.1) {
+function filter(threshold = 3, opacity = 0.1) {
+    // products = each product basically
+
+const products = document.querySelectorAll('[data-asin][data-component-type="s-search-result"]');
     const minScore = Number.isFinite(Number(threshold)) ? Number(threshold) : 2;
     products.forEach(product => {
         const score = getScore(product);
@@ -246,3 +245,17 @@ chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
 });
 detectPage();
 
+// STREAK 
+
+document.querySelectorAll('[data-asin][data-component-type="s-search-result"]').forEach(product => {
+    product.addEventListener('click', () => {
+        const score = getScore(product);
+        if (score >= 3) {
+            chrome.storage.local.get('streak', ({ streak }) => {
+                chrome.storage.local.set({ streak: (streak || 0) + 1 });
+            });
+        } else {
+            chrome.storage.local.set({ streak: 0 }); 
+        }
+    });
+});
