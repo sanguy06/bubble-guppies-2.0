@@ -50,23 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 chrome.storage.local.get('streak', ({ streak }) => {
     if ((streak || 0) >= 5) {
-        chrome.storage.local.get('streak_size', ({ streak_size }) => {  // fix double underscore too
-            const newSize = (streak_size || 0) + 1;
-            chrome.storage.local.set({ streak_size: newSize });
+        const streak_count = document.getElementById('green-streak');
+        const existing = streak_count.querySelector('.streak-fire');
+        const size = 12 + Math.min(streak * 0.5, 20); // grows with streak but caps at 32px
 
-            const streak_count = document.getElementById('green-streak');
-            const existing = streak_count.querySelector('.streak-fire');
-
-            if (existing) {
-                existing.style.fontSize = `${1 + newSize}px`;
-            } else {
-                const streak_emoji = document.createElement('span');
-                streak_emoji.className = 'streak-fire';
-                streak_emoji.innerText = '🔥';
-                streak_emoji.style.fontSize = `${5 + newSize}px`;
-                streak_count.appendChild(streak_emoji);
-            }
-        });
+        if (existing) {
+            existing.style.fontSize = `${size}px`;
+        } else {
+            const streak_emoji = document.createElement('span');
+            streak_emoji.className = 'streak-fire';
+            streak_emoji.innerText = '🔥';
+            streak_emoji.style.fontSize = `${size}px`;
+            streak_count.appendChild(streak_emoji);
+        }
     }
 });
 
