@@ -359,6 +359,8 @@ function filter(threshold = 3, opacity = 0.1) {
 chrome.storage.local.get("minEcoScore", ({ minEcoScore }) => {
     filter(minEcoScore ?? 2, 0.1);
 });
+
+// Run Detect Page - Product Page Ftr
 detectPage();
 
 // STREAK
