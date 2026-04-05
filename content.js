@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-=======
-// products = each product basically
-
-const products = document.querySelectorAll('[data-asin][data-component-type="s-search-result"]');
-
-function getScore(item) {
-    
-    let score = 0;
-    const title = item.textContent.toLowerCase();
-
->>>>>>> d97801957d3a2a09445b15b1bb73901e739d44f5
-    const strongKeywords = [
+const strongKeywords = [
     // certifications
     'certified organic',
     'fair trade',
