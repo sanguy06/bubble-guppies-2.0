@@ -1,0 +1,176 @@
+
+#greenradar-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 232px;
+  background: #0b1120;
+  border: 1px solid rgba(0, 99, 216, 0.35);
+  border-radius: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #e2e8f0;
+  z-index: 999999;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,99,216,0.08);
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+#greenradar-widget:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,99,216,0.25);
+}
+
+/* header for the radar*/
+
+#greenradar-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(0, 99, 216, 0.2);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #00c3ff;
+}
+
+.greenradar-dot-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0063d8;
+  box-shadow: 0 0 6px #0063d8;
+  flex-shrink: 0;
+}
+
+#greenradar-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+#greenradar-toggle:hover { color: #94a3b8; }
+
+/* body*/
+
+#greenrader-body {
+  padding: 8px 12px 12px;
+}
+
+/* canvas for the radar */
+
+#greenradar-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 6px auto 10px;
+}
+
+#greenradar-canvas {
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #091428 0%, #050b16 100%);
+}
+
+#greenradar-you {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/*statistics*/
+
+#greenradar-stats {
+  margin-bottom: 10px;
+}
+
+.greenradar-stat {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.greenradar-stat span,
+#greenradar-trend {
+  color: #00c3ff;
+  font-weight: 600;
+}
+
+/* wait and savings call*/
+
+#greenradar-waitout {
+  background: rgba(0, 99, 216, 0.08);
+  border: 1px solid rgba(0, 99, 216, 0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+#greenradar-waitoutT {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7dd3fc;
+  margin-bottom: 3px;
+}
+
+#greenradar-waitoutS {
+  font-size: 11px;
+  color: #38bdf8;
+  opacity: 0.8;
+}
+
+/* Join button */
+
+#greenradar-button {
+  width: 100%;
+  padding: 9px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0063d8, #0047a8);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+#greenradar-button:hover  { opacity: 0.9; }
+#greenradar-button:active { transform: scale(0.98); }
+
+/*When the user joins*/
+
+#greenradar-joined {
+  text-align: center;
+  padding: 8px 4px;
+  color: #7dd3fc;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+#greenradar-joined small {
+  display: block;
+  font-size: 11px;
+  color: #38bdf8;
+  opacity: 0.75;
+  margin-top: 3px;
+}
+
+.greenradar-check {
+  font-size: 16px;
+  margin-right: 4px;
+}
