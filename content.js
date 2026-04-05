@@ -258,11 +258,13 @@
         const cluster = clusterOrders(orders);
         const savings = calcSavingsClust(cluster.length);
         const wait = estWaitTime();
+        const buddyCount = orders.length;
 
-        document.getElementById("greenradar-count").textContent = orders.length;
+        document.getElementById("greenradar-count").textContent = buddyCount;
         document.getElementById("greenradar-savings").textContent = savings;
         document.getElementById("greenradar-wait").textContent = wait;
         document.getElementById("greenradar-trend").textContent = trendMsgs[Math.floor(Math.random() * trendMsgs.length)];
+        chrome.storage.local.set({ buddies: buddyCount });
     }
 
     //the animated part
