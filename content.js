@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+=======
+// products = each product basically
+
+const products = document.querySelectorAll('[data-asin][data-component-type="s-search-result"]');
+
+function getScore(item) {
+    
+    let score = 0;
+    const title = item.textContent.toLowerCase();
+
+>>>>>>> d97801957d3a2a09445b15b1bb73901e739d44f5
     const strongKeywords = [
     // certifications
     'certified organic',
@@ -215,14 +227,18 @@ function dispScore(product, score) {
     product.appendChild(badge);
 }
 
-function filter() {
+function filter(threshold, opacity) {
     products.forEach(product => {
         const score = getScore(product);
 
-        if (score < 1.5) {
-            product.style.opacity = 0.1;
-        }
-        else {
+        if (score < threshold) {
+            product.style.opacity = opacity;
+            const btn = product.querySelector('button[name="submit.addToCart"], input[name="submit.addToCart"]');
+            if (btn) {
+                btn.style.opacity = 1 / opacity;
+                btn.style.pointerEvents = 'auto';
+            }
+        } else {
             dispScore(product, score);
         }
         
@@ -230,8 +246,7 @@ function filter() {
 }
 
 
-filter();
-
-    // safe to query static DOM elements now
+filter(2, 0.1);
 detectPage();
+
 
