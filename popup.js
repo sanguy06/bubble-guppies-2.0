@@ -40,13 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('toggle');
   const toggleLabel = document.getElementById('toggle-label');
   const streakEl = document.getElementById('green-streak');
-  const buddies = document.getElementById('buddies');
+  const buddiesEl = document.getElementById('buddies') || document.getElementById('buddiese');
 
   // Load stats
   chrome.storage.local.get(['streak', 'buddies'], ({ streak, buddies }) => {
     document.getElementById('green-streak').textContent = streak || 0;
-    document.getElementById('buddies').textContent = buddies || 0;
+    if (buddiesEl) buddiesEl.textContent = buddies || 0;
 });
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') return;
+    if (changes.buddies && buddiesEl) {
+      buddiesEl.textContent = changes.buddies.newValue || 0;
+    }
+  });
 
 chrome.storage.local.get('streak', ({ streak }) => {
     if ((streak || 0) >= 5) {
